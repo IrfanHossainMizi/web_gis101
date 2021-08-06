@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+<!-- 
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+
+
+
+
+
+        <title>WASH Assessment of Chattogram City Corporation</title>
+        <link rel="stylesheet" href="src/leaflet.css">
+        <link rel="stylesheet" href="src/css/bootstrap.css">
+         <link rel="stylesheet" href="src/css/fontawesome.min.css">
+         
+        <link rel="stylesheet" href="src/plugins/leaflet-legend.css">
+        <link rel="stylesheet" href="src/plugins/leaflet.awesome-markers.css">
+        <link rel="stylesheet" href="src/plugins/leaflet-opencage/src/css/L.Control.OpenCageSearch.css">
+        <script src="src/leaflet-src.js"></script>
+        <script src="src/jquery-3.5.1.min.js"></script>
+        <script src="src/plugins/leaflet.ajax.min.js"></script>
+        <script src="src/plugins/leaflet.sprite.js"></script>
+         <script src="src/plugins/leaflet.awesome-markers.min.js"></script>
+
+
+
+         <script src="src/plugins/leaflet-providers.js"></script>
+
+         
+         <script src="src/plugins/leaflet-legend.js"></script>
+
+
+        <script src="src/plugins/leaflet-opencage/src/js/L.Control.OpenCageSearch.js"></script>
+        <style>
+            #mapdiv {
+                height:100vh;
+            }
+        </style>
+
+
+
+
+
+
+
+    </head>
+
+
+    <body>
+
+   <h1 style="text-align: center">
+      WASH Assessment of Chattogram City Corporation
+    </h1>
+    <h3 style="text-align: center">(A study in ward no 39 and 40)</h3>
+    <h1>
+      <a href="https://www.wsup.com/where-we-work/bangladesh/">
+        <img
+          src="./img/wsup_new.png"
+          alt="water and sanitation for the urban poor"
+          width="1800"
+          height="100"
+        />
+      </a>
+    </h1>
+
+        <div id="mapdiv"></div>
+        <script>
+            var mymap;
+            var lyrOSM;
+            var lyrDark;
+            var lyrTopo;
+            var lyrImagery;
+            var lyrOutdoors;
+
+
+            var road;
+            var structure;
+            var ctlSearch;
+            var mrkCurrentLocation
+            var ctlLayers;
+            var objBasemaps;
+            var objOverlays;
+            var ctlLegend;
+
+            var plyParks;
+            var plyRoad;
+            var waterbody;
+            var osm_building;
+            var icnRedSprite;
+            var icnVioletsprite;
+            var icnLAMtree;
+            var icnLAMtoilet;
+
+            var toilet_final;
+            var LicBoundary;
+            var structure;
+            var lic_point;
+            var toilet_proposed;
+            var water_source;
+            var handwash_fcilities;
+            var containment;
+
+
+        function icon(iconUrl) {
+          return L.icon({
+              iconUrl: iconUrl,
+              iconSize: [24, 24],
+              iconAnchor: [12, 12]
+          })
+      }
+
+            
+            $(document).ready(function(){
+                icnRedSprite = L.spriteIcon('red');
+                icnVioletsprite = L.spriteIcon('violet');
+                icnLAMtree = L.AwesomeMarkers.icon({icon:'tree-conifer',markerColor:'green'});
+                icnLAMtoilet = L.AwesomeMarkers.icon({icon:'twitter',markerColor:'green',prefix:'fa'});
+
+                mymap = L.map('mapdiv', {center:[22.247147, 91.802409], zoom:13});
+                lyrOSM = L.tileLayer.provider('OpenStreetMap.Mapnik');
+                lyrDark = L.tileLayer.provider('Stadia.AlidadeSmoothDark');
+                lyrTopo = L.tileLayer.provider('OpenTopoMap');
+                lyrImagery = L.tileLayer.provider('Esri.WorldImagery');
+                lyrOutdoors = L.tileLayer.provider('Stadia.Outdoors');
+
+                mymap.addLayer(lyrOSM);
+
+
+
+
+                lic_point = L.geoJSON.ajax('data/lic_final_point.geojson',{pointToLayer : returnLicMarker}).addTo(mymap);
+
+
+                lic_point.on('data:loaded', function(){
+                    mymap.fitBounds(lic_point.getBounds());
+                });
+
+
+
+                toilet_final = L.geoJSON.ajax('data/toilet_final.geojson',{pointToLayer : returnToilet_final_Marker}).addTo(mymap);
+
+                toilet_final.on('data:loaded', function(){
+                    mymap.fitBounds(toilet_final.getBounds());
+                });
+
+
+
+                toilet_proposed = L.geoJSON.ajax('data/proposed_toilet_final.geojson',{pointToLayer : returnToilet_proposed_Marker}).addTo(mymap);
+
+
+                toilet_proposed.on('data:loaded', function(){
+                    mymap.fitBounds(toilet_proposed.getBounds());
+                });
+
+                water_source = L.geoJSON.ajax('data/water_source.geojson',{pointToLayer : return_water_source_Marker}).addTo(mymap);
+
+
+                water_source.on('data:loaded', function(){
+                    mymap.fitBounds(toilet_proposed.getBounds());
+                });
+
+                handwash_fcilities = L.geoJSON.ajax('data/handwashing_facility.geojson',{pointToLayer : return_handwash_fcilities_Marker}).addTo(mymap);
+
+
+                handwash_fcilities.on('data:loaded', function(){
+                    mymap.fitBounds(handwash_fcilities.getBounds());
+                });
+
+
+                containment = L.geoJSON.ajax('data/containment.geojson',{pointToLayer : return_containment_Marker}).addTo(mymap);
+
+
+                containment.on('data:loaded', function(){
+                    mymap.fitBounds(containment.getBounds());
+                });
+
+
+
+
+
+
+                waterbody = L.geoJSON.ajax('data/waterbody_wsup_ctg.geojson',{color:'#0C5AB2',fillColor:'#0C5AB2',fillOpacity:0.5}).addTo(mymap);
+
+                structure = L.geoJSON.ajax('data/structure.geojson',{color:'#DFDF0C',fillColor:'#DFDF0C',fillOpacity:0.7}).addTo(mymap);
+
+                LicBoundary = L.geoJSON.ajax('data/lic_boundary_final.geojson',{color:'red',fillColor:'#0C5AB2',fillOpacity:0.3}).addTo(mymap);
+
+                road = L.geoJSON.ajax('data/road_wsup.geojson',{color:'#CE4C0A',fillColor:'#CE4C0A',fillOpacity:0.3}).addTo(mymap);
+
+
+                objBasemaps = {
+                    "Open Stret Maps": lyrOSM,
+                    "Topo Map" : lyrTopo,
+                    "Esri Imagery Map": lyrImagery,
+                    "Map in dark" : lyrDark,
+                    "Outdoors" : lyrOutdoors
+                };
+
+                objOverlays = {
+                    "<img src='img/lic_house.png' height=18> LIC Point" : lic_point,
+                    "<img src='img/toilet.png' height=18> Existing Toilet" : toilet_final,
+                    "<img src='img/proposed_toilet.png' height=18> Proposed Toilet" : toilet_proposed,
+                    "<img src='img/water_source.png' height=18> Water source" : water_source,
+                    "<img src='img/handwash_facility.png' height=18> Handwash facility" : handwash_fcilities,
+                    "<img src='img/containment.png' height=18> Containment" : containment,
+                    "<img src='img/waterbody.png' height=18> Waterbody" : waterbody,
+                    "<img src='img/road.png' height=18> Road" : road,
+                    "<img src='img/lic.png' height=18> Lic Boundary" :LicBoundary,
+                    "<img src='img/structure.png' height=18> structure" : structure,
+
+                };
+
+                ctlLayers = L.control.layers(objBasemaps, objOverlays, { collapsed: false }).addTo(mymap);
+
+
+
+
+
+                function returnLicMarker(json, latlng){
+                    var att = json.properties;
+                    return L.marker(latlng,{icon: icon('img/lic_house.png')}).bindTooltip("<h4>Total Household No: " +att.total_HH+"</h4><h4>Population: " +att.Popn+"</h4><h4>Household type: " +att.HH_type+"</h4><h4>Garments worker living: " +att.Garments+"</h4><h4>Name of the LIC: " +att.Name_of_th+"</h4><h4>Owner Name: " +att.owner_nam+"</h4> Road Name: "+att.Road_name);
+
+
+                }
+                function returnToilet_final_Marker(json, latlng){
+                    var att = json.properties;
+
+                    return L.marker(latlng,{icon: icon('img/toilet.png')}).bindTooltip("<h4>Chamber number: " +att.Chamber_no+"</h4><h4>Total User: " +att.Total_usr+"</h4><h4>Runing Water: " +att.Runing_wtr+"</h4><h4>Availability of light: " +att.Light+"</h4><h4>Wall door: " +att.Wall_door+"</h4><h4>Soap holder: " +att.Soap_hldr+"</h4><h4>Lock: " +att.Lock+"</h4><h4>User Pattern: " +att.User_patrn+"</h4><h4>Functionality: " +att.functnlty+"</h4><h4>Type of toilet: " +att.Typ_tlt+"</h4><h5>Colony name: " +att.Lic_name+"</h5> Ownership: "+att.Ownership);
+
+
+                }
+                function returnToilet_proposed_Marker(json, latlng){
+                    var att = json.properties;
+                    return L.marker(latlng,{icon: icon('img/proposed_toilet.png')}).bindTooltip("<h4>Number of new toilet required: " +att.new_toilet+"</h4>");
+
+
+                }
+
+
+
+
+                    function return_water_source_Marker(json, latlng){
+                    var att = json.properties;
+                    return L.marker(latlng,{icon: icon('img/water_source.png')}).bindTooltip("<h4>Trubidity: " +att.turbidity+"</h4><h4>Total user: " +att.Total_usr+"</h4><h4>Functionality: " +att.Functinlty+"</h4><h4>Type of source: " +att.Type+"</h4><h4>Badsmell: " +att.Bad_smell+"</h4><h4>Ownership: " +att.Ownership+"</h4> Alternative soure type: "+att.Alternate);
+
+
+                }
+
+
+                function return_handwash_fcilities_Marker(json, latlng){
+                    var att = json.properties;
+                    return L.marker(latlng,{icon: icon('img/handwash_facility.png')}).bindTooltip("<h4>Total user: " +att.Total_user+"</h4><h4>Ownership: " +att.Ownrshp+"</h4><h4>Running water: " +att.runing_wtr+"</h4><h4>Soap: " +att.Soap);
+
+
+                }
+
+                    function return_containment_Marker(json, latlng){
+                    var att = json.properties;
+                    return L.marker(latlng,{icon: icon('img/containment.png')}).bindTooltip("<h4>Type: " +att.Type+"</h4><h4>Soakwell: " +att.Soakwell+"</h4><h4>Connected to drain: " +att.cnct_drain+"</h4><h4>Lead Broken: " +att.LeadBroken+"</h4><h4>Leak during rain: " +att.Leak_rain+"</h4><h4>Ever empty: " +att.Ever_empty+"</h4><h4> Payment for emptying service: "+att.pay_empty+"</h4><h4>Emptying service mechanism: " +att.empty_by);
+
+
+                }
+
+
+                // this is for address search perpose
+
+                ctlSearch =  L.Control.openCageSearch({key: '3c38d15e76c02545181b07d3f8cfccf0',limit:10}).addTo(mymap);
+
+            });
+        </script>
+
+
+
+
+
+            <!-- START FOOTER BOTTOM AREA -->
+    <footer class="footer-bottom-area footer-bottom-bg">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="footer-text text-center">
+              <p class="text-muted">
+                <span>GPAD</span> &copy; Technical Assistance By
+                <img src='./img/gpad.png' />
+              </p>
+              <p>Location: House 4 (Flat A1 & A2), Road 4, Block J,
+Banashree, Dhaka 1219, Call: +880 17 17087089</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- END FOOTER BOTTOM AREA -->
+    </body>
+</html>
